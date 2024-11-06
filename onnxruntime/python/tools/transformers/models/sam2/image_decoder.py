@@ -35,8 +35,8 @@ class SAM2ImageDecoder(nn.Module):
     @torch.no_grad()
     def forward(
         self,
-        image_features_0: torch.Tensor,
-        image_features_1: torch.Tensor,
+        # image_features_0: torch.Tensor,
+        # image_features_1: torch.Tensor,
         image_embeddings: torch.Tensor,
         point_coords: torch.Tensor,
         point_labels: torch.Tensor,
@@ -86,7 +86,8 @@ class SAM2ImageDecoder(nn.Module):
             nvtx_helper.start_profile("mask_decoder", color="red")
 
         low_res_masks, iou_predictions = self.mask_decoder(
-            image_features_0, image_features_1, image_embeddings, image_pe, sparse_embeddings, dense_embeddings
+            # image_features_0, image_features_1,
+            image_embeddings, image_pe, sparse_embeddings, dense_embeddings
         )
 
         if nvtx_helper is not None:
@@ -121,10 +122,10 @@ def export_decoder_onnx(
     batch_size = 1
     image = random_sam2_input_image(batch_size)
     sam2_encoder = SAM2ImageEncoder(sam2_model).cpu()
-    image_features_0, image_features_1, image_embeddings = sam2_encoder(image)
+    image_embeddings = sam2_encoder(image)
 
-    logger.info("image_features_0.shape: %s", image_features_0.shape)
-    logger.info("image_features_1.shape: %s", image_features_1.shape)
+    # logger.info("image_features_0.shape: %s", image_features_0.shape)
+    # logger.info("image_features_1.shape: %s", image_features_1.shape)
     logger.info("image_embeddings.shape: %s", image_embeddings.shape)
 
     sam2_decoder = SAM2ImageDecoder(
@@ -142,8 +143,8 @@ def export_decoder_onnx(
     original_image_size = torch.tensor([1200, 1800], dtype=torch.int32)
 
     example_inputs = (
-        image_features_0,
-        image_features_1,
+       # image_features_0,
+       # image_features_1,
         image_embeddings,
         point_coords,
         point_labels,
@@ -165,8 +166,8 @@ def export_decoder_onnx(
         logger.info("low_res_masks.shape: %s", low_res_masks.shape)
 
     input_names = [
-        "image_features_0",
-        "image_features_1",
+       # "image_features_0",
+       # "image_features_1",
         "image_embeddings",
         "point_coords",
         "point_labels",
@@ -216,7 +217,7 @@ def test_decoder_onnx(
     batch_size = 1
     image = random_sam2_input_image(batch_size)
     sam2_encoder = SAM2ImageEncoder(sam2_model).cpu()
-    image_features_0, image_features_1, image_embeddings = sam2_encoder(image)
+    image_embeddings = sam2_encoder(image)
 
     sam2_image_decoder = SAM2ImageDecoder(
         sam2_model,
@@ -233,8 +234,8 @@ def test_decoder_onnx(
     original_image_size = torch.tensor([1500, 1500], dtype=torch.int32)
 
     example_inputs = (
-        image_features_0,
-        image_features_1,
+       # image_features_0,
+       # image_features_1,
         image_embeddings,
         point_coords,
         point_labels,

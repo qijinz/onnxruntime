@@ -59,8 +59,8 @@ class SAM2ImageEncoder(nn.Module):
 
         # precompute projected level 0 and level 1 features in SAM decoder
         # to avoid running it again on every SAM click
-        backbone_out["backbone_fpn"][0] = self.model.sam_mask_decoder.conv_s0(backbone_out["backbone_fpn"][0])
-        backbone_out["backbone_fpn"][1] = self.model.sam_mask_decoder.conv_s1(backbone_out["backbone_fpn"][1])
+        # backbone_out["backbone_fpn"][0] = self.model.sam_mask_decoder.conv_s0(backbone_out["backbone_fpn"][0])
+        # backbone_out["backbone_fpn"][1] = self.model.sam_mask_decoder.conv_s1(backbone_out["backbone_fpn"][1])
 
         # Prepare and flatten visual features.
         feature_maps = backbone_out["backbone_fpn"][-self.model.num_feature_levels :]
@@ -82,7 +82,7 @@ class SAM2ImageEncoder(nn.Module):
             nvtx_helper.stop_profile("post_process")
             nvtx_helper.print_latency()
 
-        return feats[0], feats[1], feats[2]
+        return feats[0] #, feats[1], feats[2]
 
 
 def export_image_encoder_onnx(

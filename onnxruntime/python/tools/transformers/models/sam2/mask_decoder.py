@@ -31,8 +31,8 @@ class SAM2MaskDecoder(nn.Module):
     @torch.no_grad()
     def forward(
         self,
-        image_features_0: torch.Tensor,
-        image_features_1: torch.Tensor,
+        # image_features_0: torch.Tensor,
+        # image_features_1: torch.Tensor,
         image_embeddings: torch.Tensor,
         image_pe: torch.Tensor,
         sparse_embeddings: torch.Tensor,
@@ -59,7 +59,7 @@ class SAM2MaskDecoder(nn.Module):
             sparse_prompt_embeddings=sparse_embeddings,
             dense_prompt_embeddings=dense_embeddings,
             repeat_image=sparse_embeddings.shape[0] > 1,  # batch mode
-            high_res_features=[image_features_0, image_features_1],
+            #high_res_features=[image_features_0, image_features_1],
         )
 
         if self.multimask_output:
@@ -90,9 +90,9 @@ def export_mask_decoder_onnx(
 
     image = random_sam2_input_image()
     sam2_encoder = SAM2ImageEncoder(sam2_model).cpu()
-    image_features_0, image_features_1, image_embeddings = sam2_encoder(image)
-    logger.info("image_features_0.shape: %s", image_features_0.shape)
-    logger.info("image_features_1.shape: %s", image_features_1.shape)
+    image_embeddings = sam2_encoder(image)
+    # logger.info("image_features_0.shape: %s", image_features_0.shape)
+    # logger.info("image_features_1.shape: %s", image_features_1.shape)
     logger.info("image_embeddings.shape: %s", image_embeddings.shape)
 
     # encode an random prompt
@@ -112,7 +112,9 @@ def export_mask_decoder_onnx(
     logger.info("image_pe.shape: %s", image_pe.shape)
 
     sam2_mask_decoder = SAM2MaskDecoder(sam2_model, multimask_output, dynamic_multimask_via_stability)
-    inputs = (image_features_0, image_features_1, image_embeddings, image_pe, sparse_embeddings, dense_embeddings)
+    inputs = (
+        # image_features_0, image_features_1,
+        image_embeddings, image_pe, sparse_embeddings, dense_embeddings)
     low_res_masks, iou_predictions = sam2_mask_decoder(*inputs)
     logger.info("low_res_masks.shape: %s", low_res_masks.shape)
     logger.info("iou_predictions.shape: %s", iou_predictions.shape)
@@ -129,8 +131,8 @@ def export_mask_decoder_onnx(
             opset_version=18,
             do_constant_folding=True,
             input_names=[
-                "image_features_0",
-                "image_features_1",
+                #"image_features_0",
+                #"image_features_1",
                 "image_embeddings",
                 "image_pe",
                 "sparse_embeddings",
@@ -158,7 +160,7 @@ def test_mask_decoder_onnx(
 
     image = random_sam2_input_image()
     sam2_encoder = SAM2ImageEncoder(sam2_model).cpu()
-    image_features_0, image_features_1, image_embeddings = sam2_encoder(image)
+    image_embeddings = sam2_encoder(image)
 
     num_labels = 1
     num_points = 5
@@ -172,7 +174,9 @@ def test_mask_decoder_onnx(
     )
 
     sam2_mask_decoder = SAM2MaskDecoder(sam2_model, multimask_output, dynamic_multimask_via_stability)
-    inputs = (image_features_0, image_features_1, image_embeddings, image_pe, sparse_embeddings, dense_embeddings)
+    inputs = (
+        #image_features_0, image_features_1,
+        image_embeddings, image_pe, sparse_embeddings, dense_embeddings)
     low_res_masks, iou_predictions = sam2_mask_decoder(*inputs)
 
     import onnxruntime
@@ -190,8 +194,8 @@ def test_mask_decoder_onnx(
     outputs = ort_session.run(
         output_names,
         {
-            "image_features_0": image_features_0.numpy(),
-            "image_features_1": image_features_1.numpy(),
+            #"image_features_0": image_features_0.numpy(),
+            #"image_features_1": image_features_1.numpy(),
             "image_embeddings": image_embeddings.numpy(),
             "image_pe": image_pe.numpy(),
             "sparse_embeddings": sparse_embeddings.numpy(),
