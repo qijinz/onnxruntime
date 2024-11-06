@@ -29,7 +29,7 @@ def _get_model_cfg(model_type) -> str:
 
 def load_sam2_model(sam2_dir, model_type, device: Union[str, torch.device] = "cpu") -> SAM2Base:
     checkpoints_dir = os.path.join(sam2_dir, "checkpoints")
-    sam2_config_dir = os.path.join(sam2_dir, "sam2_configs")
+    sam2_config_dir = os.path.join(sam2_dir, "sam2/configs/sam2")
     if not os.path.exists(sam2_dir):
         raise FileNotFoundError(f"{sam2_dir} does not exist. Please specify --sam2_dir correctly.")
 
