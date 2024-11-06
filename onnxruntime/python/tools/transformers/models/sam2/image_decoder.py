@@ -95,6 +95,7 @@ class SAM2ImageDecoder(nn.Module):
             nvtx_helper.start_profile("post_process", color="green")
 
         # Interpolate the low resolution masks back to the original image size.
+        original_image_size = original_image_size.to(torch.int32)
         masks = F.interpolate(
             low_res_masks,
             (original_image_size[0], original_image_size[1]),
@@ -137,10 +138,10 @@ def export_decoder_onnx(
     num_labels = 2
     num_points = 3
     point_coords = torch.randint(low=0, high=1024, size=(num_labels, num_points, 2), dtype=torch.float)
-    point_labels = torch.randint(low=0, high=1, size=(num_labels, num_points), dtype=torch.int32)
+    point_labels = torch.randint(low=0, high=1, size=(num_labels, num_points), dtype=torch.float)
     input_masks = torch.zeros(num_labels, 1, 256, 256, dtype=torch.float)
     has_input_masks = torch.ones(1, dtype=torch.float)
-    original_image_size = torch.tensor([1200, 1800], dtype=torch.int32)
+    original_image_size = torch.tensor([1200, 1800], dtype=torch.float)
 
     example_inputs = (
        # image_features_0,
@@ -228,10 +229,10 @@ def test_decoder_onnx(
     num_labels = 1
     num_points = 5
     point_coords = torch.randint(low=0, high=1024, size=(num_labels, num_points, 2), dtype=torch.float)
-    point_labels = torch.randint(low=0, high=1, size=(num_labels, num_points), dtype=torch.int32)
+    point_labels = torch.randint(low=0, high=1, size=(num_labels, num_points), dtype=torch.float)
     input_masks = torch.zeros(num_labels, 1, 256, 256, dtype=torch.float)
     has_input_masks = torch.zeros(1, dtype=torch.float)
-    original_image_size = torch.tensor([1500, 1500], dtype=torch.int32)
+    original_image_size = torch.tensor([1500, 1500], dtype=torch.float)
 
     example_inputs = (
        # image_features_0,
