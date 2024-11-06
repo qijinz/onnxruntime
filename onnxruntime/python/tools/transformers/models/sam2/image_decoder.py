@@ -171,9 +171,9 @@ def export_decoder_onnx(
         "image_embeddings",
         "point_coords",
         "point_labels",
-        "input_masks",
-        "has_input_masks",
-        "original_image_size",
+        "mask_input",
+        "has_mask_input",
+        "orig_im_size",
     ]
 
     output_names = ["masks", "iou_predictions", "low_res_masks"]
@@ -181,8 +181,8 @@ def export_decoder_onnx(
     dynamic_axes = {
         "point_coords": {0: "num_labels", 1: "num_points"},
         "point_labels": {0: "num_labels", 1: "num_points"},
-        "input_masks": {0: "num_labels"},
-        "has_input_masks": {0: "num_labels"},
+        "mask_input": {0: "num_labels"},
+        "has_mask_input": {0: "num_labels"},
         "masks": {0: "num_labels", 2: "original_image_height", 3: "original_image_width"},
         "low_res_masks": {0: "num_labels"},
         "iou_predictions": {0: "num_labels"},

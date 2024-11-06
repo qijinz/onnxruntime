@@ -113,12 +113,12 @@ def export_prompt_encoder_onnx(
         export_params=True,
         opset_version=18,
         do_constant_folding=True,
-        input_names=["point_coords", "point_labels", "input_masks", "has_input_masks"],
+        input_names=["point_coords", "point_labels", "mask_input", "has_mask_input"],
         output_names=["sparse_embeddings", "dense_embeddings", "image_pe"],
         dynamic_axes={
             "point_coords": {0: "num_labels", 1: "num_points"},
             "point_labels": {0: "num_labels", 1: "num_points"},
-            "input_masks": {0: "num_labels"},
+            "mask_input": {0: "num_labels"},
             "sparse_embeddings": {0: "num_labels", 1: "num_points+1"},
             "dense_embeddings": {0: "num_labels"},
         },
@@ -161,8 +161,8 @@ def test_prompt_encoder_onnx(
         {
             "point_coords": point_coords.numpy(),
             "point_labels": point_labels.numpy(),
-            "input_masks": input_masks.numpy(),
-            "has_input_masks": has_input_masks.numpy(),
+            "mask_input": input_masks.numpy(),
+            "has_mask_input": has_input_masks.numpy(),
         },
     )
 
